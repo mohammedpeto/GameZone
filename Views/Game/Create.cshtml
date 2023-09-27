@@ -1,0 +1,69 @@
+﻿@model GameZone.ViewModel.CreateGameViewModel
+
+@{
+    ViewData["Title"] = "Add Game";
+}
+
+<form asp-action="Create" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="Name" class="form-label mt-4"> Name </label>
+                <input asp-for="Name" class="form-control" placeholder="Enter Name">
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CategoryID" class="form-label mt-4"> Category </label>
+                <select class="form-select" asp-for="CategoryID" asp-items="Model.Categories" 
+                        data-placeholder="Select a Category" data-minimum-results-for-search="Infinity">
+                    <option></option>
+                </select>
+                <span asp-validation-for="CategoryID" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="SelectedDevices" class="form-label mt-4"> Devices </label>
+                <select class="form-select" asp-for="SelectedDevices" asp-items="Model.Devices" data-placeholder="Select Device">
+                    <option></option>
+                </select>
+                <span asp-validation-for="SelectedDevices" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description" class="form-label mt-4"> Name </label>
+                <textarea asp-for="Description" class="form-control" placeholder="Enter Description"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Cover" class="form-label mt-4"> Name </label>
+                <input class="form-control" asp-for="Cover" type="file" >
+                <small class="form-text text-muted">Only .jpg , .png files are allowed with max size 5MB.</small>
+                <span asp-validation-for="Cover" class="text-danger d-block" ></span>
+            </div>
+        </div>
+           
+        <div class="col-md-6 d-flex justify-content-center pt-4 overflow-hidden">
+            <img class="cover-preview d-none" id="cover-preview" alt="Cover" style="max-height: 500px; border-radius: 8px;"/>
+
+        </div>
+        
+    </div>
+    <div>
+        <button type="submit" class="btn btn-outline-primary">Save</button>
+    </div>
+</form>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+            $('#Cover').on('change', function () {
+                $('.cover-preview').attr('src', window.URL.createObjectURL(this.files[0])).removeClass('d-none');
+            }); 
+        });
+    </script>
+}
