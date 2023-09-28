@@ -13,6 +13,6 @@ namespace GameZone.Services
         public Game GetByID(int id);
         public Task Create(CreateGameViewModel game);
         public Task<Game?> Update(EditGameViewModel game);
-        public void Delete(int id);
+        public bool Delete(int id);
     }
 }

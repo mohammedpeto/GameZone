@@ -98,9 +98,20 @@ namespace GameZone.Services
            
         }
 
-        public void Delete(int id)
+        public bool Delete(int id)
         {
-            throw new NotImplementedException();
+            var game = context.Games.Find(id);
+            if (game == null)
+                return false;
+
+            context.Games.Remove(game);
+            var rows = context.SaveChanges();
+            if(rows > 0)
+            {
+                var cover = Path.Combine(_ImagesPath, game.Cover);
+                File.Delete(cover);
+            }
+            return true;
         }
 
         private async Task<string> SaveCover (IFormFile Cover)

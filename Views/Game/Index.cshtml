@@ -36,7 +36,7 @@ else
                                <a class="btn btn-info rounded rounded-3 me-2" asp-action="Update" asp-route-id="@item.Id">
                                    <i class="bi bi-pencil-fill"></i>
                                </a>
-                               <a href="#" class="btn btn-danger rounded rounded-3">
+                               <a href="#" class="btn btn-danger rounded rounded-3 js-Delete" data-id="@item.Id" >
                                    <i class="bi bi-trash3"></i>
                                </a>
                            </div>
@@ -52,3 +52,56 @@ else
 
 
 <a class="btn btn-outline-info" asp-controller="Game" asp-action="Create"><i class="bi bi-add"> Add Game </i></a>
+
+
+@section Scripts
+{
+<script>
+    $(document).ready(function () {
+        $('.js-Delete').on('click', function () {
+            var btn = $(this);
+
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-danger mx-2',
+                    cancelButton: 'btn btn-success'
+                 },
+                buttonsStyling: false
+                    })
+
+            swalWithBootstrapButtons.fire({
+                title: 'Are you sure to Delete This Game?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'No, cancel!',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/Game/Delete/${btn.data('id')}`,
+                        method: 'DELETE',
+                        success: function () {
+                            swalWithBootstrapButtons.fire(
+                                'Deleted!',
+                                'Game has been deleted.',
+                                'success'
+                            );
+                            btn.parents('tr').fadeOut();
+                        },
+                        error: function () {
+                            swalWithBootstrapButtons.fire(
+                                'Ooooooooooooops....!',
+                                'Something went Wrong!.',
+                                'error'
+                            )
+                        }
+                    });
+                    
+                }
+            });
+        });
+    });
+</script>
+}

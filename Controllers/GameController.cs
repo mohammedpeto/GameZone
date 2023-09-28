@@ -98,5 +98,14 @@ namespace GameZone.Controllers
             model.Categories = categoryRepo.GetSelectLists();
             return View(model);
         }
+
+        [HttpDelete]
+        public IActionResult Delete(int id)
+        {
+            var isDeleted = GameRepo.Delete(id);
+
+              // retrn this if is true : Else 
+            return isDeleted ? Ok() : BadRequest();
+        }
     }
 }
