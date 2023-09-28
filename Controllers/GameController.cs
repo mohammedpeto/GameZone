@@ -60,5 +60,43 @@ namespace GameZone.Controllers
             game.Categories = categoryRepo.GetSelectLists();
             return View(game);
         }
+
+        [HttpGet]
+        public IActionResult Update(int id) 
+        {
+            var game = GameRepo.GetByID(id);
+            EditGameViewModel model = new EditGameViewModel()
+            {
+                Id = id,
+                Name = game.Name,
+                Description = game.Description,
+                CategoryID = game.CategoryID,
+                SelectedDevices = game.GameDevices.Select(d => d.DeviceID).ToList(),
+                Categories = categoryRepo.GetSelectLists(),
+                Devices = DevicesRepo.GetSelectLists(),
+                CurrentCover = game.Cover
+                
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Update(EditGameViewModel model)
+        {
+            if(ModelState.IsValid == true)
+            {
+               var ga = await GameRepo.Update(model);
+                if (ga == null)
+                    return BadRequest();
+                return RedirectToAction("Index");
+
+            }
+
+
+            model.Devices = DevicesRepo.GetSelectLists();
+            model.Categories = categoryRepo.GetSelectLists();
+            return View(model);
+        }
     }
 }

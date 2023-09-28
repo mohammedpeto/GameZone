@@ -2,6 +2,7 @@
 using GameZone.Models;
 using GameZone.ViewModel;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -44,11 +45,7 @@ namespace GameZone.Services
 
         public async Task Create(CreateGameViewModel game)
         {
-            var coverName = $"{Guid.NewGuid()}{Path.GetExtension(game.Cover.FileName)}";
-            //save cover photo on server
-            var path = Path.Combine(_ImagesPath,coverName);
-            using var stream = File.Create(path);
-            await game.Cover.CopyToAsync(stream);
+            var coverName = await SaveCover(game.Cover);
                 
 
             Game game1 = new()
@@ -63,14 +60,58 @@ namespace GameZone.Services
             context.SaveChanges();
         }
 
-        public void Update(Game game, int id)
+        public async Task<Game?> Update(EditGameViewModel model)
         {
-            throw new NotImplementedException();
+            var game = context.Games
+                .Include(g => g.GameDevices)
+                .SingleOrDefault(g => g.Id == model.Id);
+
+            game.Name = model.Name;
+            game.Description = model.Description;
+            game.CategoryID = model.CategoryID;
+            game.GameDevices = model.SelectedDevices.Select(d => new GameDevice { DeviceID = d }).ToList();
+
+            var hasNewCover = model.Cover is not null;
+            var oldCover = game.Cover;
+            if(hasNewCover)
+            {
+                game.Cover = await SaveCover(model.Cover);
+            }
+
+           var rows = context.SaveChanges();
+            // Save the new Photo on Server instead of the old one
+            if(rows > 0)
+            {
+                if(hasNewCover)
+                {
+                    var co = Path.Combine(_ImagesPath, oldCover);
+                    File.Delete(co);
+                }
+                return game;
+            }
+            else
+            {
+                var co = Path.Combine(_ImagesPath, game.Cover);
+                File.Delete(co);
+                return null;
+            }
+           
         }
 
         public void Delete(int id)
         {
             throw new NotImplementedException();
+        }
+
+        private async Task<string> SaveCover (IFormFile Cover)
+        {
+            var coverName = $"{Guid.NewGuid()}{Path.GetExtension(Cover.FileName)}";
+            //save cover photo on server
+            var path = Path.Combine(_ImagesPath, coverName);
+            using var stream = File.Create(path);
+            await Cover.CopyToAsync(stream);
+
+            return coverName;
         }
     }
 }
